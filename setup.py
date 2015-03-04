@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "mbed-test-wrapper",
-    version = "0.0.0",
+    version = "0.0.1",
     author = "James Crosby",
     author_email = "James.Crosby@arm.com",
     description = "Wrap the mbed test loader for easy use from yotta targets.",
