@@ -45,7 +45,7 @@ def run():
     )
     out, err = mbedls.communicate()
     if mbedls.returncode:
-        sys.stderr.write('Failed to list mbeds: %s, %s' % (out, err))
+        sys.stderr.write('Failed to list mbeds: %s, %s\n' % (out, err))
         sys.exit(-1)
 
     mbeds = json.loads(out)
@@ -60,7 +60,7 @@ def run():
 
     if not mount_point:
         sys.stderr.write(
-            'Target "%s" not found. Available targets are: %s' %
+            'Target "%s" not found. Available targets are: %s\n' %
             (args.target, ', '.join([x['platform_name'] for x in mbeds]))
         )
         sys.exit(-1)
@@ -75,7 +75,7 @@ def run():
         )
         out, err = objcopy.communicate()
         if objcopy.returncode:
-            sys.stderr.write('Failed to generate bin file for executable: %s, %s' % (out, err))
+            sys.stderr.write('Failed to generate bin file for executable: %s, %s\n' % (out, err))
             sys.exit(-1)
 
     # run mbedhtrun and pipe its output to our stdout & stderr
