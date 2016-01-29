@@ -10,6 +10,7 @@ import json
 import sys
 import os
 import threading
+import json
 
 class RunWithTimeout(threading.Thread):
     def __init__(self, command):
@@ -29,6 +30,48 @@ class RunWithTimeout(threading.Thread):
             return -1
         else:
             return self.process.returncode
+
+def walkUpDirs():
+    d = os.getcwd()
+    while True:
+        yield d
+        parent_d = os.path.dirname(d)
+        if parent_d == d:
+            break
+        else:
+            d = parent_d
+
+def findConfig():
+    'Search the current directory then its parents for a yotta_config.json file'
+    config = None
+    for d in walkUpDirs():
+        if os.path.isfile(os.path.join(d, 'yotta_config.json')):
+            with open(os.path.join(d, 'yotta_config.json')) as f:
+                config = f.read()
+            break
+        if os.path.isfile(os.path.join(d, 'module.json')):
+            # stop: we found a yotta module, the merged json will always be in
+            # a subdir of this
+            break
+    return config
+
+def getBaudRateFromConfig():
+    ''' mbed now writes the debug serial baud rate to yotta config:
+        unfortunately there's no way to discover it automatically from the
+        device, so to run a program we need to read this.
+
+        Look for the yotta_config.json file in this directory and its parents,
+        and then read the baud rate from it, if found. Otherwise return None
+    '''
+    baud_rate = None
+    config = findConfig()
+    if config is not None:
+        parsed = json.loads(config)
+        baud_rate = parsed.get('mbed-os', {}).get('stdio', {}).get('default-baud', None)
+    with open('runningin.txt', 'w+') as f:
+        print 'baud rate= %s' % baud_rate > f
+    return baud_rate
+
 
 def run():
     p = argparse.ArgumentParser()
@@ -57,6 +100,10 @@ def run():
             mount_point = mbed['mount_point']
             serial_port = mbed['serial_port']
             break
+
+    baud_rate = getBaudRateFromConfig()
+    if baud_rate is not None:
+        serial_port = serial_port + (':%s' % baud_rate)
 
     if not mount_point:
         sys.stderr.write(
