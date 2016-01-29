@@ -89,7 +89,7 @@ def run():
         sys.stderr.write('Failed to list mbeds: %s, %s\n' % (out, err))
         sys.exit(-1)
 
-    mbeds = json.loads(out)
+    mbeds = json.loads(out.decode('utf-8'))
 
     serial_port = None
     mount_point = None
