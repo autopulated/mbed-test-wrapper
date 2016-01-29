@@ -33,10 +33,10 @@ class RunWithTimeout(threading.Thread):
 def run():
     p = argparse.ArgumentParser()
     p.add_argument('-t', '--target', dest='target', help='execution target name (e.g. K64F)')
-    p.add_argument('-i', '--timeout', dest='timeout', help='max time to wait for the program (seconds)', type=float, default=15.0)
+    p.add_argument('-i', '--timeout', dest='timeout', help='max time to wait for the program (seconds)', type=float, default=10.0)
     p.add_argument('program', help='executable file to run')
 
-    args = p.parse_args()
+    args, unknown_args = p.parse_known_args()
 
     # run mbed-ls to find a board that matches the specified target:
     mbedls = subprocess.Popen(
@@ -81,7 +81,7 @@ def run():
     # run mbedhtrun and pipe its output to our stdout & stderr
     returncode = RunWithTimeout([
         'mbedhtrun', '-d', mount_point, '-f', binfile_name, '-p', serial_port, '-C', '4', '-m', args.target
-    ]).runFor(args.timeout)
+    ] + unknown_args).runFor(args.timeout)
     if returncode:
         sys.exit(returncode)
 
