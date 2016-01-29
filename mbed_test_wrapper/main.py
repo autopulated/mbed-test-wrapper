@@ -68,8 +68,6 @@ def getBaudRateFromConfig():
     if config is not None:
         parsed = json.loads(config)
         baud_rate = parsed.get('mbed-os', {}).get('stdio', {}).get('default-baud', None)
-    with open('runningin.txt', 'w+') as f:
-        print 'baud rate= %s' % baud_rate > f
     return baud_rate
 
 
